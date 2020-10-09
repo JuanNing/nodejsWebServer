@@ -9,11 +9,10 @@ const getPostData = (req) => {
                 resolve({})
                 return
             }
-            if (req.headers['Content-type'] !== 'application/json') {
-                resolve()
+            if (req.headers['content-type'] !== 'application/json') {
+                resolve({})
                 return
             }
-
             //将数据保存到相应的位置
             let postData = ''
             req.on('data', chunk => {
@@ -21,7 +20,7 @@ const getPostData = (req) => {
             })
             req.on('end', () => {
                 if (!postData) {
-                    resolve()
+                    resolve({})
                     return
                 }
                 resolve(
@@ -29,6 +28,7 @@ const getPostData = (req) => {
                 )
             })
         })
+        return promise
     }
     //将正常http.createServer的回调方法抽离为serverHandle方法
     //在www.js中直接调用此方法
@@ -42,13 +42,12 @@ const serverHandle = (req, res) => {
     req.path = url.split('?')[0]
 
     //解析从URL参数
-    req.query = querystring.parse(url.split('?')[0])
+    req.query = querystring.parse(url.split('?')[1])
 
     //处理post data
     getPostData(req).then(postData => {
         req.body = postData
-
-        //处理blog路由
+            //处理blog路由
         const blogData = handleBlogRouter(req, res)
         if (blogData) {
             res.end(

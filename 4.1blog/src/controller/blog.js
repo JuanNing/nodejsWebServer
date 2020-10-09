@@ -27,13 +27,23 @@ const getDetail = (id) => {
     }]
 }
 const newBlog = (blogData = {}) => {
-    console.log('new BLog...', blogData);
+    //博客的主要属性为title和content
     return {
         id: 3
     }
+}
+const updateBlog = (id, blogData = {}) => {
+    //博客的主要属性为title和content,有Id是为了找到对应更新的blog
+    return true
+}
+const del = (id) => {
+    //删除博客时，只需要一个id值即可
+    return true
 }
 module.exports = {
     getList,
     getDetail,
     newBlog,
+    updateBlog,
+    del,
 }
