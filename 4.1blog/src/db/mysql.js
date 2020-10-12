@@ -15,6 +15,7 @@ function exec(sql) {
                 reject(err)
                 return
             }
+            console.log('db/mysql/exec result is...' + result);
             resolve(result)
         })
     })
