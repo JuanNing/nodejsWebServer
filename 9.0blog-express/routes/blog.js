@@ -8,12 +8,21 @@ const {
     delBlog,
 } = require('../controller/blog')
 const { SuccessModel, ErrorModel } = require('../model/resModel')
+const loginCheck = require('../middleware/loginCheck')
 
 router.get('/list', function(req, res, next) {
     const author = req.query.author || ''
     const keyword = req.query.keyword || ''
 
     //检查是否为管理员登录，这部分代码还没有
+    if (req.query.isadmin) {
+        if (req.session.username == null) {
+            res.json('未登录')
+            return
+        }
+        //强制查询自己的博客
+        author = req.session.username
+    }
 
     const result = getList(author, keyword)
     return result.then(listData => {
@@ -23,4 +32,54 @@ router.get('/list', function(req, res, next) {
     })
 });
 
+router.get('/detail', (req, res, next) => {
+    const result = getDetail(req.query.id)
+    return result.then(detail => {
+        res.json(
+            new SuccessModel(detail)
+        )
+    })
+
+})
+
+router.post('/new', loginCheck, (req, res, next) => {
+    req.body.author = req.session.username
+    const result = newBlog(req.body)
+    return result.then(data => {
+        res.json(
+            new SuccessModel(data)
+        )
+    })
+})
+
+router.post('/update', loginCheck, (req, res, next) => {
+    const result = updateBlog(req.query.id, req.body)
+    return result.then(val => {
+        if (val) {
+            res.json(
+                new SuccessModel()
+            )
+        } else {
+            res.json(
+                new ErrorModel('更新博客失败')
+            )
+        }
+    })
+})
+
+router.post('/del', loginCheck, (req, res, next) => {
+    req.body.author = req.session.username
+    const result = delBlog(req.query.id, author);
+    return result.then(val => {
+        if (val) {
+            res.json(
+                new SuccessModel()
+            )
+        } else {
+            res.json(
+                new ErrorModel('更新博客失败')
+            )
+        }
+    })
+})
 module.exports = router;
